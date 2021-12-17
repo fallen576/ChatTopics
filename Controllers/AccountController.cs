@@ -17,6 +17,11 @@ namespace ChatTopics.Controllers
         [Route("login")]
         public async Task<IActionResult> LoginAsync(User user)
         {
+            if (String.IsNullOrEmpty(user.Email) || String.IsNullOrEmpty(user.UserName))
+            {
+                return Redirect("/");
+            }
+
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName),
@@ -32,7 +37,7 @@ namespace ChatTopics.Controllers
 
             _logger.LogInformation("signed in " + user.Email + " " + user.UserName);
 
-            return Redirect("/");
+            return Redirect("/Group");
         }
     }
 }

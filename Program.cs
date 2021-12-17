@@ -1,3 +1,4 @@
+using ChatTopics.Hub;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +18,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.IsEssential = true;
     });
 builder.Services.AddSession();
+builder.Services.AddScoped<ChatTopicsHub>();
 
 var app = builder.Build();
 
