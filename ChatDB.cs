@@ -25,7 +25,10 @@ namespace ChatTopics
                 Name = roomName,
                 HistoricMessages = new List<UserMessage>()
             };
-            _rooms.Add(tmpRoom);
+            if (!_rooms.Exists(r => r.Name == roomName))
+            {
+                _rooms.Add(tmpRoom);
+            }
             return _rooms?.Find(r => r.Name == roomName)?.HistoricMessages;
         }
 

@@ -6,15 +6,59 @@
     <h1 class="display-4">Welcome to ChatTopics</h1>
     <p>A site that lets you create any number of chat rooms that any number of people can join!<p>
 </div>
-<p>Below are the available Topics you can join</p>
 
-@{
-    for(int i = 0; i < Model.Count; i++)
-    {
-        <h2>@Model[i]</h2>
-    }
-}
+<div class="container-fluid">
+    <div class="row long">
+        <div class="col-2">
+            <!--all topics-->
+            <p>Below are the available Topics you can join</p>
+            <ul id="topic-list">
+            @{
+                for(int i = 0; i < Model.Count; i++)
+                {
+                    <li>@Model[i]</li>
+                }
+            }
+            </ul>
+        </div>
+        <div class="col-8">
+            <!--chat area-->
+            <div class="message-container">
+                <div class="chat">
+                    <div class="left"><strong id="customer-name">Ben</strong></div>
+                    <span id="customer-message">
+                        Hello. How are you today?
+                    </span>
+                    <span class="time-right" id="message-time">11:00</span>
+                </div>
 
+                <div class="chat darker">
+                    <div class="right"><strong id="customer-name">Ben</strong></div>
+                    <span id="customer-message">
+                        Hey! I'm fine. Thanks for asking!
+                    </span>
+                    <span class="time-left" id="message-time">11:00</span>
+                </div>
+            </div>
+
+		</div>
+        <div class="col-2">
+            <!--create topic area-->
+            <div class="row">
+                <div class="col">
+                    <form id="create-topic">
+                        <div class="input-group">
+                            <input id="new-topic" type="text" class="form-control" placeholder="Topic Name" required>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary" type="submit">Create Topic</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 @section Scripts {

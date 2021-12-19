@@ -1,4 +1,10 @@
-﻿var currentRoom = ""
+﻿$(document).ready(() => {
+    $("#create-topic").submit((e) => {
+        e.preventDefault();
+        create($("#new-topic").val());
+    });
+})
+var currentRoom = ""
 
 let connection = new signalR.HubConnectionBuilder()
     .withUrl("/chat")
@@ -7,6 +13,14 @@ let connection = new signalR.HubConnectionBuilder()
 const send = (message) => connection.invoke('SendMessage', message, currentRoom )
 
 const create = (room) => fetch('/create?roomName=' + room)
+    .then(response => {
+        console.log(response.redirected);
+        if (!response.redirected) {
+            $("#topic-list").append('<li>' + $("#new-topic").val() + '</li>');
+            $("#new-topic").val("");
+        }
+    })
+    .catch(console.log("error, must be authenticated to create a topic"));
 
 const list = () => fetch('/list').then(r => r.json()).then(r => console.log("rooms", r))
 
