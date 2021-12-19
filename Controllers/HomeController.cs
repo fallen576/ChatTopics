@@ -6,19 +6,34 @@ using System.Security.Claims;
 
 namespace ChatTopics.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ChatDB _chatDB;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ChatDB chatDB)
         {
             _logger = logger;
+            _chatDB = chatDB;
         }
-        
+        [AllowAnonymous]
         public IActionResult Index()
         {
-            //throw [Authorize] literally everywhere else and only allow them to hit the index page where we ask them to provide name and email
-            return View();
+            return View(_chatDB.GetRooms());
+        }
+
+        [HttpGet("/list")]
+        public IActionResult GetRooms()
+        {
+            return Ok(_chatDB.GetRooms());
+        } 
+
+        [HttpGet("/create")]
+        public IActionResult CreateRoom(string roomName)
+        {
+            _chatDB.CreateRoom(roomName);
+            return Ok();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

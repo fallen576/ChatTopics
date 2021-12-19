@@ -14,6 +14,19 @@ namespace ChatTopics.Controllers
         {
             _logger = logger;
         }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            return Redirect("/");
+        }
+
+        [Route("auth")]
+        public IActionResult Index()
+        {
+            return View();
+        }
+
         [Route("login")]
         public async Task<IActionResult> LoginAsync(User user)
         {
@@ -37,7 +50,7 @@ namespace ChatTopics.Controllers
 
             _logger.LogInformation("signed in " + user.Email + " " + user.UserName);
 
-            return Redirect("/Group");
+            return Redirect("/");
         }
     }
 }

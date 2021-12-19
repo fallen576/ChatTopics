@@ -1,4 +1,11 @@
 ﻿@using System.Security.Claims
+@{
+    string name = "";
+    if (User.FindFirst(ClaimTypes.Name) != null)
+    {
+        name = User.FindFirst(ClaimTypes.Name).Value;
+    };
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,29 +28,30 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Create Chat Room</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">My Chat Rooms</a>
                         </li>
                     </ul>
+                    <span class="navbar-text">
+                    @{
+                        if (name != "")
+                        {
+                            <ul class="navbar-nav flex-grow-1">
+                                <a class="nav-link text-dark">Hello, @name</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
+                            </ul>
+                        }
+                        else
+                        {
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index">Login</a>
+                        }
+                    }
+                    </span>
                 </div>
             </div>
         </nav>
     </header>
     <div class="container">
         <main role="main" class="pb-3">
-            <div>
-                @{
-                    string name = "";
-                    if (User.FindFirst(ClaimTypes.Name) != null)
-                    {
-                        name = User.FindFirst(ClaimTypes.Name).Value;
-                    };
-                }
-                @name
-            </div>
-
             @RenderBody()
         </main>
     </div>
@@ -55,6 +63,7 @@
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/signalr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)    
 </body>

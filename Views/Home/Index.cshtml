@@ -1,5 +1,4 @@
-﻿@model ChatTopics.Models.User
-@{
+﻿@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -7,26 +6,16 @@
     <h1 class="display-4">Welcome to ChatTopics</h1>
     <p>A site that lets you create any number of chat rooms that any number of people can join!<p>
 </div>
-<div class="row">
-    <div class="col-md-4">
-        <form asp-controller="Account" asp-action="login">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="UserName" class="control-label"></label>
-                <input asp-for="UserName" class="form-control" />
-                <span asp-validation-for="UserName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary mt-2" />
-            </div>
-        </form>
-    </div>
-</div>
+<p>Below are the available Topics you can join</p>
+
+@{
+    for(int i = 0; i < Model.Count; i++)
+    {
+        <h2>@Model[i]</h2>
+    }
+}
+
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

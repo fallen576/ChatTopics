@@ -1,4 +1,6 @@
-using ChatTopics.Hub;
+using ChatTopics;
+using ChatTopics.Hubs;
+using Microsoft.AspNet.SignalR;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,7 +8,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -16,9 +17,14 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
         options.Cookie.HttpOnly = true;
         options.Cookie.IsEssential = true;
+        options.LoginPath = "/login";
     });
+builder.Services.AddSignalR(hubOptions =>
+{
+    hubOptions.EnableDetailedErrors = true;
+});
 builder.Services.AddSession();
-builder.Services.AddScoped<ChatTopicsHub>();
+builder.Services.AddScoped<ChatDB>();
 
 var app = builder.Build();
 
@@ -38,8 +44,10 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ChatTopicsHub>("/chat");
+    endpoints.MapDefaultControllerRoute();
+});
 
 app.Run();
