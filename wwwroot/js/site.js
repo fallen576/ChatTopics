@@ -3,9 +3,12 @@
         e.preventDefault();
         let topic = $("#new-topic").val();
         create(topic);
+        connection.invoke('NotifyTopicCreate', topic)
+        /*
         connection.start()
             .then(() => connection.invoke('NotifyTopicCreate', topic))
             .catch(() => connection.invoke('NotifyTopicCreate', topic))
+        */
     });
 
     $("#login").submit((e) => {
@@ -100,11 +103,11 @@ connection.on("TopicCreate", (topic) => {
         first = false;
         console.log(i + ' ' + tr);
     });
-    let row = '<tr class="topic-entry"><td class="topics"><span id="topic_'+i+'" style="float:left">' + topic + '</span></td><td><button id="join_topic_' + i + '" class="btn btn-primary" onclick="joinTopic(topic_' + i + ')">Join Topic</button></td><td><button disabled id="leave_topic_' + i + '" class="btn btn-danger" onclick="leaveTopic(topic_' + i + ')">Leave Topic</button></td></tr>';
+    let row = '<tr class="topic-entry"><td class="topics"><span id="topic_'+i+'" style="float:left">' + topic + '</span></td><td><button id="join_topic_' + i + '" class="btn btn-primary" onclick="joinTopic(\'topic_' + i + '\')">Join Topic</button></td><td><button disabled id="leave_topic_' + i + '" class="btn btn-danger" onclick="leaveTopic(\'topic_' + i + '\')">Leave Topic</button></td></tr>';
 
     if (first) {
         i = 0;
-        let row = '<tr class="topic-entry"><td class="topics"><span id="topic_'+i+'" style="float:left">' + topic + '</span></td><td><button id="join_topic_' + i + '" class="btn btn-primary" onclick="joinTopic(topic_' + i + ')">Join Topic</button></td><td><button disabled id="leave_topic_' + i + '" class="btn btn-danger" onclick="leaveTopic(topic_' + i + ')">Leave Topic</button></td></tr>';
+        let row = '<tr class="topic-entry"><td class="topics"><span id="topic_'+i+'" style="float:left">' + topic + '</span></td><td><button id="join_topic_' + i + '" class="btn btn-primary" onclick="joinTopic(\'topic_' + i + '\')">Join Topic</button></td><td><button disabled id="leave_topic_' + i + '" class="btn btn-danger" onclick="leaveTopic(\'topic_' + i + '\')">Leave Topic</button></td></tr>';
         $('#topic-list tr:last').after(row);
     }
     else {
