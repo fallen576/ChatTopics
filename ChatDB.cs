@@ -102,10 +102,6 @@ namespace ChatTopics
         public void LogoutUser(string username)
         {
             _logger.LogInformation($"logging out {username}. total users are {_users.Count}");
-            foreach (var user in _users)
-            {
-                Console.WriteLine(user);
-            }
             _users.Remove(username);
             _rooms.RemoveAll(room => room.Owner == username);
         }

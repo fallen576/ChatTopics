@@ -12,36 +12,65 @@
     <div class="row">
         <div class="col-2">
             <!--all topics-->
-            <p>Below are the available Topics you can join</p>
-            <ul id="topic-list">
-            @{
-                for(int i = 0; i < Model.Count; i++)
-                {
-                    <li>@Model[i].Name</li>
-                    <ul>
-                        <li>Owner @Model[i].Owner</li>
-                    </ul>
-                }
-            }
-            </ul>
+            <input placeholder="search open Topics" class="w-100" />
+            <div class="message-container">
+                <table class="table" id="topic-list">
+                    <thead>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            for(int i = 0; i < Model.Count; i++)
+                            {
+                                <tr class="topic-entry">
+                                
+                                    <td class="topics">
+                                        <span id="topic_@i" style="float:left">@Model[i].Name</span>
+                                    </td>
+                                    <td>
+                                        <button id="join_topic_@i" class="btn btn-primary" onclick="joinTopic('topic_@i')">Join Topic</button>
+                                    </td>
+                                    <td>
+                                        <button disabled id="leave_topic_@i" class="btn btn-danger" onclick="leaveTopic('topic_@i')">Leave Topic</button>
+                                    </td> 
+                                
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="col-8">
             <!--chat area-->
             <div class="message-container">
-                <div class="chat">
-                    <div class="left"><strong id="customer-name">Ben</strong></div>
-                    <span id="customer-message">
-                        Hello. How are you today?
-                    </span>
-                    <span class="time-right" id="message-time">11:00</span>
-                </div>
-                <div class="chat darker">
-                    <div class="left"><strong id="customer-name">Ben</strong></div>
-                    <span id="customer-message">
-                        Not too bad, thank you for asking kind stranger named Ben as well.
-                    </span>
-                    <span class="time-right" id="message-time">11:00</span>
-                </div>
+                <table id="chat-messages" class="table table-striped rows">
+                    <thead></thead>
+                    <tbody>
+                        <tr class="chats">
+                            <td>
+                                <div class="left"><strong id="customer-name">Ben</strong></div>
+                                <span id="customer-message">
+                                    Hello. How are you today?
+                                </span>
+                                <span class="time-right" id="message-time">11:00</span>
+                            </td>
+                        </tr>
+                        <tr class="chats">
+                            <td>
+                                <div class="left"><strong id="customer-name">Ben</strong></div>
+                                <span id="customer-message">
+                                    Hello. How are you today?
+                                </span>
+                                <span class="time-right" id="message-time">11:00</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 		</div>
         <div class="col-2">
@@ -81,7 +110,7 @@
         <div class="col-8">
             <form id="chat-form">
                 <div class="input-group type">
-                    <input id="new-topic" type="text" class="form-control" placeholder="Chat here..." required>
+                    <input id="new-message" type="text" class="form-control" placeholder="Chat here..." required>
                     <div class="input-group-append">
                         <button class="btn btn-outline-light" type="submit"><img src="~/outline_send_black_24dp.png"/></button>
                     </div>

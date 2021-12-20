@@ -15,6 +15,13 @@ namespace ChatTopics.Hubs
             _chatDB = chatDB;
             _logger = logger;
         }
+
+        public async Task NotifyTopicCreate(string roomName)
+        {
+            _logger.LogInformation("topic has been created " + roomName);
+            await Clients.All.SendAsync("TopicCreate", roomName);
+        }
+
         public async Task<List<UserMessage>>? JoinRoom(string roomName)
         {
             _logger.LogInformation(Context.User.Identity.Name + " join room of " + roomName);
@@ -36,9 +43,19 @@ namespace ChatTopics.Hubs
         public Task SendMessage(string message, string roomName)
         {
             _logger.LogInformation(Context.User.Identity.Name + " sending message to " + roomName + " with message of " + message);
-            _chatDB.AddMessage(message, roomName, Context.User.Identity.Name);
-            return Clients.GroupExcept(roomName, new[] { Context.ConnectionId })
-                .SendAsync("recieveMessage", message);
+            Room room = _chatDB.GetRooms().Find(r => r.Name == roomName) ?? new Room();
+            UserMessage msg = new UserMessage
+            {
+                Message = message,
+                UserName = Context.User.Identity.Name,
+                TimeStamp = DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss")
+            };
+            room.HistoricMessages.Add(msg);
+            //_chatDB.AddMessage(message, roomName, Context.User.Identity.Name);
+            return Clients.Group(roomName).SendAsync("recieveMessage", msg);
+            
+            //return Clients.GroupExcept(roomName, new[] { Context.ConnectionId })
+              //  .SendAsync("recieveMessage", message);
         }
     }
 }

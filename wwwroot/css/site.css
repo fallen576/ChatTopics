@@ -63,3 +63,19 @@ html {
     background-color: #ffffff;
     margin: 0.5rem !important;
 }
+.topics {
+    overflow: hidden;
+}
+.rows{
+    width: 99%;
+}
+
+#chat-messages {
+    border: 2px solid #dedede;
+    border-radius: 5px;
+    margin: 0.5rem !important;
+}
+
+.chats {
+    padding-bottom: 1em;
+}
