@@ -5,10 +5,11 @@
 <div class="text-center">
     <h1 class="display-4">Welcome to ChatTopics</h1>
     <p>A site that lets you create any number of chat rooms that any number of people can join!<p>
+    <strong>If Topics are not used within 5 minutes they will be deleted from the system.</strong>
 </div>
 
 <div class="container-fluid">
-    <div class="row long">
+    <div class="row">
         <div class="col-2">
             <!--all topics-->
             <p>Below are the available Topics you can join</p>
@@ -16,7 +17,10 @@
             @{
                 for(int i = 0; i < Model.Count; i++)
                 {
-                    <li>@Model[i]</li>
+                    <li>@Model[i].Name</li>
+                    <ul>
+                        <li>Owner @Model[i].Owner</li>
+                    </ul>
                 }
             }
             </ul>
@@ -31,32 +35,60 @@
                     </span>
                     <span class="time-right" id="message-time">11:00</span>
                 </div>
-
                 <div class="chat darker">
-                    <div class="right"><strong id="customer-name">Ben</strong></div>
+                    <div class="left"><strong id="customer-name">Ben</strong></div>
                     <span id="customer-message">
-                        Hey! I'm fine. Thanks for asking!
+                        Not too bad, thank you for asking kind stranger named Ben as well.
                     </span>
-                    <span class="time-left" id="message-time">11:00</span>
+                    <span class="time-right" id="message-time">11:00</span>
                 </div>
             </div>
-
 		</div>
         <div class="col-2">
             <!--create topic area-->
             <div class="row">
                 <div class="col">
-                    <form id="create-topic">
-                        <div class="input-group">
-                            <input id="new-topic" type="text" class="form-control" placeholder="Topic Name" required>
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="submit">Create Topic</button>
-                            </div>
-                        </div>
-                    </form>
+                    @{if (User.Identity.IsAuthenticated) 
+                        {
+                            <form id="create-topic">
+                                <div class="input-group">
+                                    <input id="new-topic" type="text" class="form-control" placeholder="Topic Name" required>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-primary" type="submit">Create Topic</button>
+                                    </div>
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <form id="login">
+                                <div class="input-group">   
+                                    <input id="username" type="text" class="form-control" placeholder="username" min="3" required>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-primary" type="submit">Login</button>
+                                    </div>
+                                </div>
+                                <strong id="error" style="color:red;"></strong>
+                            </form>
+                        }
+                    }
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row">
+        <div class="col-2"></div>
+        <div class="col-8">
+            <form id="chat-form">
+                <div class="input-group type">
+                    <input id="new-topic" type="text" class="form-control" placeholder="Chat here..." required>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-light" type="submit"><img src="~/outline_send_black_24dp.png"/></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-2"></div>
     </div>
 </div>
 

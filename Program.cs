@@ -17,14 +17,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
         options.Cookie.HttpOnly = true;
         options.Cookie.IsEssential = true;
-        options.LoginPath = "/login";
+        options.LoginPath = "/";
+        options.EventsType = typeof(CookieEvents);
     });
 builder.Services.AddSignalR(hubOptions =>
 {
     hubOptions.EnableDetailedErrors = true;
 });
 builder.Services.AddSession();
-builder.Services.AddScoped<ChatDB>();
+//builder.Services.AddScoped<ChatDB>();
+builder.Services.AddSingleton<ChatDB>();
+builder.Services.AddScoped<CookieEvents>();
+builder.Services.AddHostedService<DeleteJob>();
 
 var app = builder.Build();
 

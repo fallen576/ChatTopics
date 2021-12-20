@@ -5,17 +5,15 @@ html {
 @media (min-width: 768px) {
   html {
     font-size: 16px;
+
   }
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    overflow: hidden;
+    height: 100%;
 }
 
-body {
-  margin-bottom: 60px;
-}
 /* Chat containers */
 .chat {
     border: 2px solid #dedede;
@@ -37,22 +35,6 @@ body {
     display: table;
 }
 
-/* Style images */
-.container img {
-    float: left;
-    max-width: 60px;
-    width: 100%;
-    margin-right: 20px;
-    border-radius: 50%;
-}
-
-    /* Style the right image */
-    .container img.right {
-        float: right;
-        margin-left: 20px;
-        margin-right: 0;
-    }
-
 /* Style time text */
 .time-right {
     float: right;
@@ -65,10 +47,19 @@ body {
     color: #999;
 }
 .message-container {
-    border: solid;
-    height: 75%;
+    height: 550px;
     overflow: auto;
 }
-.long {
-    height: 100vh;
+
+.left {
+    float: left;
+    padding-right: 45px;
+}
+.right {
+    float: right;
+}
+
+.type {
+    background-color: #ffffff;
+    margin: 0.5rem !important;
 }

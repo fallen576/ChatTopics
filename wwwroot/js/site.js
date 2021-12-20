@@ -3,6 +3,11 @@
         e.preventDefault();
         create($("#new-topic").val());
     });
+
+    $("#login").submit((e) => {
+        e.preventDefault();
+        login();
+    });
 })
 var currentRoom = ""
 
@@ -44,3 +49,13 @@ const leave = () => connection.invoke('LeaveRoom', currentRoom )
         connection.off('recieveMessage')
         return connection.stop()
     })
+
+async function login() {
+    let res = await fetch(`/spalogin?username=${$("#username").val()}`);
+
+    if (res.ok) {
+        location.href = "/";
+    }
+    let body = await res.json();
+    $("#error").text(body.message)
+}

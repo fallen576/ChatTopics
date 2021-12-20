@@ -32,7 +32,7 @@ namespace ChatTopics.Controllers
         [HttpGet("/create")]
         public IActionResult CreateRoom(string roomName)
         {
-            _chatDB.CreateRoom(roomName);
+            _chatDB.CreateRoom(roomName, User.Identity.Name);
             return Ok();
         }
 
