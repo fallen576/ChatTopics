@@ -27,7 +27,13 @@ namespace ChatTopics.Controllers
         public IActionResult GetRooms()
         {
             return Ok(_chatDB.GetRooms());
-        } 
+        }
+
+        [HttpGet("/users")]
+        public IActionResult GetUsers()
+        {
+            return Ok(_chatDB.GetUsers());
+        }
 
         [HttpGet("/create")]
         public IActionResult CreateRoom(string roomName)

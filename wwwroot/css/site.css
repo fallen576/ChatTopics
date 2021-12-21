@@ -86,4 +86,5 @@ html {
 
 .chats {
     padding-bottom: 1em;
+    word-break: break-word;
 }

@@ -51,7 +51,6 @@ namespace ChatTopics.Hubs
                 TimeStamp = DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss")
             };
             room.HistoricMessages.Add(msg);
-            //_chatDB.AddMessage(message, roomName, Context.User.Identity.Name);
             return Clients.Group(roomName).SendAsync("recieveMessage", msg);
             
             //return Clients.GroupExcept(roomName, new[] { Context.ConnectionId })

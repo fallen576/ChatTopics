@@ -22,11 +22,11 @@ namespace ChatTopics
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting DeleteJob");
-            _timer = new Timer(DeleteOldTopics, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
+            _timer = new Timer(DeleteOldTopicsandUsers, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
             return Task.CompletedTask;
         }
 
-        private void DeleteOldTopics(object? state)
+        private void DeleteOldTopicsandUsers(object? state)
         {
             List<Room> rooms = _chatDB.GetRooms();
             foreach (Room room in rooms)
@@ -36,6 +36,17 @@ namespace ChatTopics
                 {
                     _logger.LogWarning($"The topic {name} has been inactive for 5 minutes and is being deleted.");
                     _chatDB.RemoveTopic(name);
+                }
+            }
+
+            List<User> users = _chatDB.GetUsers();
+            foreach (User user in users)
+            {
+                string name = user.UserName;
+                if (_chatDB.DeleteUser(name))
+                {
+                    _logger.LogWarning($"The user {name} has been inactive for 5 minutes and is being deleted.");
+                    //_chatDB.RemoveUser(name);
                 }
             }
         }

@@ -52,31 +52,5 @@ namespace ChatTopics.Controllers
                 new ClaimsPrincipal(claimsIdentity));
             return Ok();
         }
-
-        [Route("login")]
-        public async Task<IActionResult> LoginAsync(User user)
-        {
-            if (String.IsNullOrEmpty(user.Email) || String.IsNullOrEmpty(user.UserName))
-            {
-                return Redirect("/");
-            }
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Email, user.Email)
-            };
-
-            var claimsIdentity = new ClaimsIdentity(
-                claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity));
-
-            _logger.LogInformation("signed in " + user.Email + " " + user.UserName);
-
-            return Redirect("/");
-        }
     }
 }

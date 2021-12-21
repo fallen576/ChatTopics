@@ -6,7 +6,8 @@ namespace ChatTopics
     {
         private readonly ILogger<ChatDB> _logger;
         private static readonly List<Room> _rooms = new();
-        private static readonly List<String> _users = new();
+        //private static readonly List<String> _users = new();
+        private static readonly List<ChatTopics.Models.User> _currentUsers = new();
 
         public ChatDB(ILogger<ChatDB> logger) => _logger = logger;
         public List<Room> GetRooms()
@@ -37,6 +38,9 @@ namespace ChatTopics
             {
                 _rooms.Add(tmpRoom);
             }
+
+            UpdateUserLastActive(username);
+
             return _rooms?.Find(r => r.Name == roomName)?.HistoricMessages;
         }
 
@@ -50,7 +54,18 @@ namespace ChatTopics
             //update timer on room so it does not get deleted
             Room room = _rooms.Find(r => r.Name == roomName) ?? new Room();
             room.HistoricMessages
-                .Add(new UserMessage { Message = message, UserName = userName, TimeStamp = DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss") });            
+                .Add(new UserMessage { Message = message, UserName = userName, TimeStamp = DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss") });
+
+            UpdateUserLastActive(userName);
+        }
+
+        public void UpdateUserLastActive(string userName)
+        {
+            var user = _currentUsers.FirstOrDefault(u => u.UserName == userName);
+            if (user != null)
+            {
+                user.LastActive = DateTime.Now;
+            }
         }
 
         public bool Delete(string roomName)
@@ -84,25 +99,56 @@ namespace ChatTopics
             return false;
         }
 
+        public bool DeleteUser(string userName)
+        {
+            if (UserExists(userName))
+            {
+                var user = _currentUsers.FirstOrDefault(u =>u.UserName == userName);
+                if (user != null && user.LastActive < DateTime.Now.AddMinutes(-5))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void RemoveTopic(string roomName)
         {
             _rooms.RemoveAll(x => x.Name == roomName);
         }
 
+        public void RemoveUser(string userName)
+        {
+            _currentUsers.RemoveAll(u => u.UserName == userName);
+        }
+
         public bool UserExists(string username)
         {
-            return _users.Contains(username);
+            //return _users.Contains(username);
+            return _currentUsers.Exists(x => x.UserName == username);
         }
 
         public void CreateUser(string username)
         {
-            _users.Add(username);
+            //_users.Add(username);
+            _currentUsers.Add(
+                new User
+                {
+                    UserName = username,
+                    LastActive = DateTime.Now
+                });
+        }
+
+        public List<User> GetUsers()
+        {
+            return _currentUsers;
         }
 
         public void LogoutUser(string username)
         {
-            _logger.LogInformation($"logging out {username}. total users are {_users.Count}");
-            _users.Remove(username);
+            _logger.LogInformation($"logging out {username}. total users are {_currentUsers.Count}");
+            //_users.Remove(username);
+            RemoveUser(username);
             _rooms.RemoveAll(room => room.Owner == username);
         }
     }
