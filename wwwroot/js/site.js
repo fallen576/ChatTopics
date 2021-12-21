@@ -1,24 +1,38 @@
 ﻿$(document).ready(() => {
+
+    connection.start().then(() => connected = true);
+
     $("#create-topic").submit((e) => {
         e.preventDefault();
         let topic = $("#new-topic").val();
-        if (!connected) {
-            console.log("call connect async");
-            connection.start()
-                .then(() => {
-                    connected = true;
+
+        fetch("/exists?roomName="+topic)
+            .then(r => r.json())
+            .then(r => {
+                if (r.exists) {
+                    console.log("room exists");
+                    $("#error").text("room exists");
+                    return;
+                }
+                $("#error").text("");
+                if (!connected) {
+                    console.log("call connect async");
+                    connection.start()
+                        .then(() => {
+                            connected = true;
+                            create(topic);
+                            connection.invoke('NotifyTopicCreate', topic)
+                                .then(() => {
+                                    connection.stop();
+                                    connected = false;
+                                })
+                        });
+                }
+                else {
                     create(topic);
                     connection.invoke('NotifyTopicCreate', topic)
-                        .then(() => {
-                            connection.stop();
-                            connected = false;
-                        })
-                });
-        }
-        else {
-            create(topic);
-            connection.invoke('NotifyTopicCreate', topic)
-        }
+                }
+            });
     });
 
     //thinking make the url like, /?room=ben. then onload i know what room theyre in and can pre populate the chat.
@@ -63,21 +77,56 @@ const list = () => fetch('/list').then(r => r.json()).then(r => console.log("roo
 
 const join = (room) => {
     currentRoom = room;
-
+    if (!connected) {
+        connection.start()
+            .then(() => connection.invoke('JoinRoom', room))
+            .then((history) => {
+                for (var i in history) {
+                    let obj = history[i];
+                    insertNewMessage(obj.userName, obj.message, obj.timeStamp);
+                }
+                connection.on("recieveMessage", (userMessage) => {
+                    console.log(userMessage);
+                    insertNewMessage(userMessage.userName, userMessage.message, userMessage.timeStamp);
+                })
+                // connection.on('send_message', logMessage) // needed for working example
+            })
+    }
+    else {
+        connection.invoke('JoinRoom', room)
+            .then((history) => {
+            for (var i in history) {
+                let obj = history[i];
+                insertNewMessage(obj.userName, obj.message, obj.timeStamp);
+            }
+            connection.on("recieveMessage", (userMessage) => {
+                console.log(userMessage);
+                insertNewMessage(userMessage.userName, userMessage.message, userMessage.timeStamp);
+            })
+            // connection.on('send_message', logMessage) // needed for working example
+        })
+    }
+    /*
     connection.start()
     .then(() => connection.invoke('JoinRoom', room ))
         .then((history) => {
+            for (var i in history) {
+                let obj = history[i];
+                insertNewMessage(obj.userName, obj.message, obj.timeStamp);
+            }
             connection.on("recieveMessage", (userMessage) => {
                 console.log(userMessage);
                 insertNewMessage(userMessage.userName, userMessage.message, userMessage.timeStamp);
             })
         // connection.on('send_message', logMessage) // needed for working example
     })
+    */
 }
 
 const leave = () => connection.invoke('LeaveRoom', currentRoom )
     .then(() => {
-        currentRoom = ''
+        currentRoom = '';
+        connected = false;
         // function reference needs to be the same to work
         // connection.off('send_message', m => console.log(m)) // doesn't work
         // connection.off('send_message', logMessage) // works  
@@ -87,20 +136,40 @@ const leave = () => connection.invoke('LeaveRoom', currentRoom )
 
 const joinTopic = (id) => {
     let topic = $("#" + id).text();
-
-    console.log("joining topic of " + topic + " id= " + id);
-
     $("#join_" + id).prop('disabled', true);
     $("#leave_" + id).prop('disabled', false);
+
+    console.log("joining " + id);
+
+    $('#topic-list td button').each(function (i) {        
+        $(this).prop('disabled', true);
+    });
+
+    $('#topic-list tbody tr:nth-child(' + (Number.parseInt(id.split("_")[1]) + 1) + ') td:nth-child(2) button').prop("disabled", true);
+    $('#topic-list tbody tr:nth-child(' + (Number.parseInt(id.split("_")[1]) + 1) + ') td:nth-child(3) button').prop("disabled", false);
+
+
     join(topic);
 }
 
 const leaveTopic = (id) => {
     let topic = $("#" + id).text();
-    $("#join_" + id).prop('disabled', false);
-    $("#leave_" + id).prop('disabled', true);
-    leave(topic);
+    //$("#join_" + id).prop('disabled', false);
+    //$("#leave_" + id).prop('disabled', true);
 
+    $('#topic-list td button').each(function (i) {
+        if ($(this).attr("id").indexOf("leave") > -1) {
+            $(this).prop('disabled', true);
+        }
+        else {
+            $(this).prop('disabled', false);
+        }
+    });
+
+
+    leave(topic);
+    //clear chats
+    $('#chat-messages').find("tr:not(:nth-child(1))").remove();
 }
 
 async function login() {
@@ -138,15 +207,6 @@ const insertNewMessage = (usr, msg, time) => {
     $('#chat-messages tr:last').after(row);
 }
 
-const connectPLZZZ = () => {
-
-    //how can I wait for this?
-    connection.start()
-        .then(() => {
-            console.log("connected!");
-        });
-}
-
 async function connectToHub() {    
     try {
         await connection.start();
@@ -161,6 +221,5 @@ async function disconnectFromHub() {
     return await connection.stop()
         .then(() => {
             connected = false;
-            console.log("okay to move on to after connect");
         });
 }

@@ -36,6 +36,16 @@ namespace ChatTopics.Controllers
             return Ok();
         }
 
+        [HttpGet("/exists")]
+        public IActionResult CheckRoomExists(string roomName)
+        {
+            if (_chatDB.RoomExists(roomName))
+            {
+                return Ok(new { Exists = true });
+            }
+            return Ok(new { Exists = false });
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

@@ -49,6 +49,14 @@ html {
 .message-container {
     height: 550px;
     overflow: auto;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.topic-container {
+    height: 550px;
+    overflow: auto;
+    flex-direction: column-reverse;
 }
 
 .left {
@@ -67,7 +75,7 @@ html {
     overflow: hidden;
 }
 .rows{
-    width: 99%;
+    width: 98%;
 }
 
 #chat-messages {
