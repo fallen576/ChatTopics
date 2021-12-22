@@ -25,7 +25,10 @@ namespace ChatTopics.Hubs
         public async Task<List<UserMessage>>? JoinRoom(string roomName)
         {
             _logger.LogInformation(Context.User.Identity.Name + " join room of " + roomName);
+            _chatDB.AddUserToGroup(roomName, Context.User.Identity.Name);
             await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
+            await Clients.GroupExcept(roomName, new[] { Context.ConnectionId })
+                .SendAsync("JoinTopic", Context.User.Identity.Name);
             return _chatDB.GetMessages(roomName);
         }
 
@@ -34,9 +37,12 @@ namespace ChatTopics.Hubs
             return _chatDB.GetMessages(roomName);
         }
 
-        public Task LeaveRoom(string roomName)
+        public async Task<Task> LeaveRoom(string roomName)
         {
             _logger.LogInformation(Context.User.Identity.Name + " leave room of " + roomName);
+            _chatDB.RemoveUserFromTopic(roomName, Context.User.Identity.Name);
+            await Clients.GroupExcept(roomName, new[] { Context.ConnectionId })
+                .SendAsync("LeaveTopic", Context.User.Identity.Name);
             return Groups.RemoveFromGroupAsync(Context.ConnectionId, roomName);
         }
 
@@ -50,6 +56,7 @@ namespace ChatTopics.Hubs
                 UserName = Context.User.Identity.Name,
                 TimeStamp = DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss")
             };
+            _chatDB.UpdateUserLastActive(Context.User.Identity.Name);
             room.HistoricMessages.Add(msg);
             return Clients.Group(roomName).SendAsync("recieveMessage", msg);
             

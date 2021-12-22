@@ -46,7 +46,7 @@ namespace ChatTopics
                 if (_chatDB.DeleteUser(name))
                 {
                     _logger.LogWarning($"The user {name} has been inactive for 5 minutes and is being deleted.");
-                    //_chatDB.RemoveUser(name);
+                    _chatDB.LogoutUser(name);
                 }
             }
         }

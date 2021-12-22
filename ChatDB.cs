@@ -1,4 +1,5 @@
 ﻿using ChatTopics.Models;
+using Microsoft.AspNetCore.Authentication;
 
 namespace ChatTopics
 {
@@ -8,6 +9,7 @@ namespace ChatTopics
         private static readonly List<Room> _rooms = new();
         //private static readonly List<String> _users = new();
         private static readonly List<ChatTopics.Models.User> _currentUsers = new();
+        private static HttpContext _httpContext => new HttpContextAccessor().HttpContext;
 
         public ChatDB(ILogger<ChatDB> logger) => _logger = logger;
         public List<Room> GetRooms()
@@ -32,7 +34,14 @@ namespace ChatTopics
                 Name = roomName,
                 HistoricMessages = new List<UserMessage>(),
                 Owner = username,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Users = new List<User>
+                {
+                    new User{ 
+                        UserName = username,
+                        LastActive = DateTime.Now
+                    }
+                }
             };
             if (!_rooms.Exists(r => r.Name == roomName))
             {
@@ -42,6 +51,25 @@ namespace ChatTopics
             UpdateUserLastActive(username);
 
             return _rooms?.Find(r => r.Name == roomName)?.HistoricMessages;
+        }
+
+        public void RemoveUserFromTopic(string roomName, string? name)
+        {
+            _rooms.Find(r => r.Name == roomName)?.Users.RemoveAll(u => u.UserName == name);
+        }
+
+        public void AddUserToGroup(string roomName, string username)
+        {
+            if (RoomExists(roomName) && !GetUsersinRoom(roomName).Exists(u => u.UserName == username))
+            {
+                _rooms.Find(r => r.Name == roomName)?.Users
+                    .Add( new User 
+                    { 
+                        UserName = username,
+                        LastActive = DateTime.Now 
+                    });
+                UpdateUserLastActive(username);
+            }
         }
 
         public List<UserMessage>? GetMessages(string room)
@@ -61,10 +89,11 @@ namespace ChatTopics
 
         public void UpdateUserLastActive(string userName)
         {
-            var user = _currentUsers.FirstOrDefault(u => u.UserName == userName);
-            if (user != null)
+            var obj = _currentUsers.FirstOrDefault(u => u.UserName == userName);
+            if (obj != null)
             {
-                user.LastActive = DateTime.Now;
+                _logger.LogInformation("updating last active for " + userName);
+                obj.LastActive = DateTime.Now;
             }
         }
 
@@ -104,7 +133,7 @@ namespace ChatTopics
             if (UserExists(userName))
             {
                 var user = _currentUsers.FirstOrDefault(u =>u.UserName == userName);
-                if (user != null && user.LastActive < DateTime.Now.AddMinutes(-5))
+                if (user != null && user.LastActive < DateTime.Now.AddMinutes(-1))
                 {
                     return true;
                 }
@@ -141,14 +170,27 @@ namespace ChatTopics
 
         public List<User> GetUsers()
         {
-            return _currentUsers;
+            return _currentUsers.ToList();
         }
 
-        public void LogoutUser(string username)
+        public List<User> GetUsersinRoom(string roomName)
+        {
+            List<User> users = new();
+            if (RoomExists(roomName))
+            {
+                users = _rooms.Where(r => r.Name == roomName)
+                    .Select(u => u.Users)
+                    .First()
+                    .ToList();
+            }
+            return users;
+        }
+
+        public async Task LogoutUser(string username)
         {
             _logger.LogInformation($"logging out {username}. total users are {_currentUsers.Count}");
-            //_users.Remove(username);
             RemoveUser(username);
+            await _httpContext.SignOutAsync();
             _rooms.RemoveAll(room => room.Owner == username);
         }
     }

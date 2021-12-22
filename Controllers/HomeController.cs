@@ -52,6 +52,18 @@ namespace ChatTopics.Controllers
             return Ok(new { Exists = false });
         }
 
+        [HttpGet("/users/{roomName}")]
+        public IActionResult GetUsersinRoom(string roomName)
+        {
+            List<User> users = _chatDB.GetUsersinRoom(roomName);
+            if (users.Count > 0)
+            {
+                _logger.LogInformation("yes " + users.Count);
+                return Ok(users);
+            }
+            return NotFound();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

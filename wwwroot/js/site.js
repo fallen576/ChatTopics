@@ -33,9 +33,7 @@
                     connection.invoke('NotifyTopicCreate', topic)
                 }
             });
-    });
-
-    //thinking make the url like, /?room=ben. then onload i know what room theyre in and can pre populate the chat.
+    });    
 
     $("#login").submit((e) => {
         e.preventDefault();
@@ -49,6 +47,12 @@
         if (currentRoom != "" && msg != "") {
             send(msg);
             $("#new-message").val('');
+        }
+    });
+
+    $(window).bind("beforeunload", function (e) {
+        if (currentRoom != "") {
+            leave(currentRoom);
         }
     });
 
@@ -148,8 +152,18 @@ const joinTopic = (id) => {
     $('#topic-list tbody tr:nth-child(' + (Number.parseInt(id.split("_")[1]) + 1) + ') td:nth-child(2) button').prop("disabled", true);
     $('#topic-list tbody tr:nth-child(' + (Number.parseInt(id.split("_")[1]) + 1) + ') td:nth-child(3) button').prop("disabled", false);
 
-
     join(topic);
+
+    //get who is in the topic
+    fetch("users/" + topic)
+        .then(r => r.json())
+        .then(resp => {
+            for (var i in resp) {
+                let user = resp[i];
+                insertNewUser(user.userName);
+            }
+        })
+        .catch();
 }
 
 const leaveTopic = (id) => {
@@ -166,10 +180,13 @@ const leaveTopic = (id) => {
         }
     });
 
-
     leave(topic);
     //clear chats
     $('#chat-messages').find("tr:not(:nth-child(1))").remove();
+    //clear user
+    removeUser();
+    //clear user's in topic list since they will no longer be in a topic
+    $("#user-list tbody tr").slice(1).remove()
 }
 
 async function login() {
@@ -181,6 +198,14 @@ async function login() {
     let body = await res.json();
     $("#error").text(body.message)
 }
+
+connection.on("JoinTopic", (user) => {
+    insertNewUser(user);
+});
+
+connection.on("LeaveTopic", (user) => {
+    removeUser(user);
+});
 
 connection.on("TopicCreate", (topic) => {
     var first = true;
@@ -205,6 +230,15 @@ connection.on("TopicCreate", (topic) => {
 const insertNewMessage = (usr, msg, time) => {    
     let row = '<tr class="chats"><td><div class="left"><strong>' + usr + '</strong></div><span>' + msg + '</span><span class="time-right" id="message-time">' + time + '</span></td></tr>';
     $('#chat-messages tr:last').after(row);
+}
+
+const insertNewUser = (user) => {
+    let row = '<tr id="' + user + '" class="topic-entry"><td class="topics">' + user + '</td></tr>';
+    $("#user-list tr:last").after(row);
+}
+
+const removeUser = (usr) => {
+    $("#" + usr).remove();
 }
 
 async function connectToHub() {    
